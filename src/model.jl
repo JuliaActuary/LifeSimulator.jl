@@ -73,6 +73,9 @@ Premiums must be paid every month, otherwise the contract is cancelled (lapses).
 """
 abstract type TermLifeModel <: Model end
 
+"""
+Term life insurance model replicating the functionality of lifelib's `basiclife` module.
+"""
 Base.@kwdef struct LifelibBasiclife{M<:MortalityModel} <: TermLifeModel
   mortality::M = BasicMortality()
   load_premium_rate::Float64 = 0.50

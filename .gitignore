@@ -2,3 +2,4 @@
 /.vscode
 .CondaPkg
 /Manifest.toml
+docs/build

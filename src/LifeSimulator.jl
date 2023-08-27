@@ -40,7 +40,7 @@ export
   Sex, MALE, FEMALE,
   Policy, policies_from_csv,
   PolicySet, policy_count,
-  Model, LifelibSavings, investment_rate, brownian_motion, LifelibBasiclife,
+  Model, UniversalLifeModel, LifelibSavings, investment_rate, brownian_motion, LifelibBasiclife,
   Simulation, SimulationEvents, SimulationResult, next!, simulate, simulate!, simulation_range,
   CashFlow, ntimesteps, use_policies!
 end
