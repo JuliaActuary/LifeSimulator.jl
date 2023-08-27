@@ -1,0 +1,10 @@
+[deps]
+scipy = "1.11.2"
+pandas = "1.5.3"
+numpy = "1.24.2"
+openpyxl = "3.1.2"
+modelx = "0.21.0"
+
+[pip.deps]
+lifelib = ""
+pymort = ""

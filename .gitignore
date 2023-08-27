@@ -1,5 +1,4 @@
 **/*.DS_STORE
-.Rproj.user
-**__pycache__
 /.vscode
 .CondaPkg
+/Manifest.toml
