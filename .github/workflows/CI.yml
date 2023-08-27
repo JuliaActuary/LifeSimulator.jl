@@ -33,7 +33,7 @@ jobs:
       - uses: julia-actions/cache@v1
       - uses: julia-actions/julia-buildpkg@v1
       - name: "Run tests"
-        run: "julia --project=test test/runtests.jl"
+        run: julia --project=test -e 'using Pkg; Pkg.instantiate(); include("test/runtests.jl")'
         # Don't process coverage for now, as we don't use via Pkg.test() (because it doesn't pick up the Conda environment).
   docs:
     name: Documentation
