@@ -130,6 +130,7 @@ end
 
   policies = policies_from_csv(proj)
   model = LifelibSavings(investment_rates = investment_rate(proj))
+  @test model == LifelibSavings(; model.investment_rates)
   n = ntimesteps(proj)
   @testset "Cash flows" begin
     sim = Simulation(model, policies)

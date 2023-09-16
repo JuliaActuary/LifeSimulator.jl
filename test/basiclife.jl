@@ -33,6 +33,7 @@ end
 
 @testset "Simulated term life model" begin
   model = LifelibBasiclife()
+  @test model == LifelibBasiclife()
 
   @test LS.monthly_mortality_rate(model, Year(47), Month(0)) == LS.monthly_mortality_rates(LS.basic_mortality[], 0)[1]
   @test LS.monthly_mortality_rate(model, Year(49), Month(24)) == LS.monthly_mortality_rates(LS.basic_mortality[], 24)[1]

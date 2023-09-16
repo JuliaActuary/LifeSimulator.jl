@@ -1,5 +1,7 @@
 module LifeSimulator
 
+using StructEquality: @struct_hash_equal
+
 export pv_claims, pv_premiums, pv_commissions, pv_expenses, pv_net_cf, result_pv, result_cf
 
 using DataFrames, CSV, Memoize

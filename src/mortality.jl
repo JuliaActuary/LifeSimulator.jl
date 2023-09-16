@@ -4,7 +4,7 @@ Base.broadcastable(model::MortalityModel) = Ref(model)
 
 monthly_mortality_rate(model::MortalityModel, age::Year, time::Month) = 1 - (1 - annual_mortality_rate(model, age, time)) ^ (1/12)
 
-Base.@kwdef struct BasicMortality <: MortalityModel
+@struct_hash_equal Base.@kwdef struct BasicMortality <: MortalityModel
   rates::Matrix{Float64} = Matrix{Float64}(read_csv("basic_term/mort_table.csv")[:, 2:end])
   issue_age::Vector{Int} = issue_age[]
 end

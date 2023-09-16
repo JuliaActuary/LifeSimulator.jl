@@ -32,7 +32,7 @@ abstract type UniversalLifeModel <: Model end
 """
 Universal life model reimplemented from [lifelib's savings library](https://lifelib.io/libraries/savings/index.html).
 """
-Base.@kwdef struct LifelibSavings{M<:MortalityModel} <: UniversalLifeModel
+@struct_hash_equal Base.@kwdef struct LifelibSavings{M<:MortalityModel} <: UniversalLifeModel
   annual_lapse_rate::Float64 = 0.00
   mortality::M = ConstantMortality(0.0)
   maintenance_fee_rate::Float64 = 0.00
@@ -76,7 +76,7 @@ abstract type TermLifeModel <: Model end
 """
 Term life insurance model replicating the functionality of lifelib's `basiclife` module.
 """
-Base.@kwdef struct LifelibBasiclife{M<:MortalityModel} <: TermLifeModel
+@struct_hash_equal Base.@kwdef struct LifelibBasiclife{M<:MortalityModel} <: TermLifeModel
   mortality::M = BasicMortality()
   load_premium_rate::Float64 = 0.50
   "One-time cost for new policies."
