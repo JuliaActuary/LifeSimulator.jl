@@ -74,16 +74,30 @@ function Simulation(model::Model, policies, time = Month(0))
   Simulation(model, active, inactive, time)
 end
 
+if isdefined(Base, :ScopedValue)
+  const SHOW_PROGRESS = ScopedValue(false)
+else
+  const SHOW_PROGRESS = Ref(false)
+end
+
 simulate(f, model::Model, policies, n::Int) = simulate!(f, Simulation(model, policies), n)
 simulate!(sim::Simulation, n::Int) = simulate!(identity, sim, n)
 function simulate!(f, sim::Simulation, n::Int)
   events = SimulationEvents()
+  SHOW_PROGRESS[] && print("Simulation starting...")
   for i in 1:n
     next!(sim, events)
     f(events)
     empty!(events)
+    SHOW_PROGRESS[] && show_progress(sim, i, n)
   end
+  SHOW_PROGRESS[] && print("\r" * ' '^100 * '\r')
   sim
+end
+
+function show_progress(sim::Simulation, i::Int, n::Int)
+  model = nameof(typeof(sim.model))
+  print("\rSimulating ($model): $i/$n steps               ")
 end
 
 "Perform a first simulation to estimate the premiums to set per policy."
@@ -97,13 +111,7 @@ end
 
 function simulate!(f, sim::Simulation{<:LifelibBasiclife}, n::Int)
   compute_premiums!(sim, n)
-  events = SimulationEvents()
-  for i in 1:n
-    events = next!(sim, events)
-    f(events)
-    empty!(events)
-  end
-  sim
+  @invoke simulate!(f::Any, sim::Simulation, n::Int)
 end
 
 """

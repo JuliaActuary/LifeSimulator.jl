@@ -43,6 +43,6 @@ export
   Policy, policies_from_csv,
   PolicySet, policy_count,
   Model, UniversalLifeModel, LifelibSavings, investment_rate, brownian_motion, LifelibBasiclife,
-  Simulation, SimulationEvents, SimulationResult, next!, simulate, simulate!, simulation_range,
+  Simulation, SimulationEvents, SimulationResult, SHOW_PROGRESS, next!, simulate, simulate!, simulation_range,
   CashFlow, ntimesteps, use_policies!
 end
