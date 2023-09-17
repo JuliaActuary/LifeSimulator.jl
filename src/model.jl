@@ -4,7 +4,7 @@ for [`UniversalLifeModel`](@ref)s, account values for policy holders.
 
 Models are to be evaluated using a [`Simulation`](@ref).
 
-See also: [`Policy`](@ref)
+See also: [`Policy`](@ref), [`TermLifeModel`](@ref), [`UniversalLifeModel`](@ref)
 """
 abstract type Model end
 

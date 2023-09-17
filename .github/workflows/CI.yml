@@ -52,6 +52,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - run: |
           julia --project=docs -e '
+            using Pkg; Pkg.develop(path = "."); Pkg.instantiate()
             using Documenter: DocMeta, doctest
             using LifeSimulator
             DocMeta.setdocmeta!(LifeSimulator, :DocTestSetup, :(using LifeSimulator); recursive=true)

@@ -1,14 +1,5 @@
 # LifeSimultor.jl
 
-Documentation to be added.
+LifeSimulator is a package for simulating insurance products forward in time. It currently contains two classes of models: [`TermLifeModel`](@ref) and [`UniversalLifeModel`](@ref).
 
-## API
-
-```@index
-Modules = [LifeSimulator]
-```
-
-```@autodocs
-Modules = [LifeSimulator]
-Private = false
-```
+The novelty of this package lies in the implementation strategy for such simulations. In the actuarial world, data-oriented designs using spreadsheet-like functionality are widely used. Such designs rely on extensive caching for their performance; however, as data dependencies may be complex for more elaborate models, managing the cache size is not trivial and may hurt performance or increase memory consumption if not carefully managed. We chose here to implement a simulation mechanism using a straightforward iterative approach, where policies are evolved forward in time. We believe it allows for simpler implementations, better reusability of functions across models, and ease of extensibility; for the latter, we support arbitrary user-defined callbacks, along with access to explicit simulation events [`SimulationEvents`](@ref) at every timestep.

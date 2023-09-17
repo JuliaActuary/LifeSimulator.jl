@@ -1,7 +1,11 @@
 """
-Present value of future cashflows as computed by a [`Simulation`](@ref) over a [`UniversalLifeModel`](@ref).
+Represents cashflows, typically to be computed during a [`Simulation`](@ref) over an insurance [`Model`](@ref).
 
 The present value of future cashflows is estimated from the future cashflows using a model-provided discount rate.
+
+Cashflows may be added with `+`, which will perform the addition over each respective field.
+
+See also: [`Simulation`](@ref), [`Model`](@ref)
 """
 struct CashFlow
   premiums::Float64

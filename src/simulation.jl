@@ -80,8 +80,33 @@ else
   const SHOW_PROGRESS = Ref(false)
 end
 
+"""
+Boolean flag indicating whether to show progress during a simulation.
+
+See also: [`simulate`](@ref), [`simulate!`](@ref)
+"""
+SHOW_PROGRESS
+
+"""
+    simulate(f, model, policies, n)
+
+Simulate a set of policies forward in time according to the provided model, for `n` months.
+
+After every iteration, `f(events::SimulationEvents)` is called, and may be used for example to
+compute and keep track of cashflows.
+
+See also: [`SimulationEvents`](@ref), [`CashFlow`](@ref)
+"""
 simulate(f, model::Model, policies, n::Int) = simulate!(f, Simulation(model, policies), n)
 simulate!(sim::Simulation, n::Int) = simulate!(identity, sim, n)
+
+"""
+    simulate!(f, sim::Simulation, n)
+
+Iteratively update a [`Simulation`](@ref) in-place with `n` 1-month timesteps.
+
+See also: [`simulate`](@ref)
+"""
 function simulate!(f, sim::Simulation, n::Int)
   events = SimulationEvents()
   SHOW_PROGRESS[] && print("Simulation starting...")
