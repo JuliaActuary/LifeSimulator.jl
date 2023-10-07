@@ -77,7 +77,7 @@ abstract type TermLifeModel <: Model end
 Term life insurance model replicating the functionality of lifelib's `basiclife` module.
 """
 @struct_hash_equal Base.@kwdef struct LifelibBasiclife{M<:MortalityModel} <: TermLifeModel
-  mortality::M = BasicMortality()
+  mortality::M = BasicTermMemoized.BasicMortality()
   load_premium_rate::Float64 = 0.50
   "One-time cost for new policies."
   acquisition_cost::Float64 = 300.0

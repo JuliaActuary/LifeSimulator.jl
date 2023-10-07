@@ -27,8 +27,6 @@ function set_basic_term_policies!(policies)
     recompute_globals!()
 end
 
-npoints() = length(issue_age[])
-
 age(t::Int) = age_at_entry() .+ duration(t)
 age_at_entry() = issue_age[]
 claim_pp(t::Int) = sum_assured[]
@@ -39,20 +37,33 @@ disc_rate_mth(t::Int)::Float64 = (1 + disc_rate_ann(duration(t)))^(1/12) - 1
 disc_rate_ann(t::Int)::Float64 = 0.05
 expenses(t::Int) = policies_inforce(t) .* ((t == 0 ? expense_acq : 0.0) .+ (expense_maint / 12) .* inflation_factor(t))
 inflation_factor(t::Int) = (1 .+ inflation_rate).^(t/12)
+const cache_premiums_pp = Dict{Tuple{},Vector{Float64}}()
+@memoize Returns(cache_premiums_pp)() premium_pp() = round.((1 .+ loading_prem) .* net_premium_pp(); digits = 2)
+premiums(t::Int) = premium_pp() .* policies_inforce(t)
+net_premium_pp() = pv_claims() ./ pv_pols_if()
+net_cf(t::Int) = premiums(t) .- claims(t) .- expenses(t) .- commissions(t)
+
+policies_death(t) = policies_inforce(t) .* monthly_basic_mortality(t)
+policies_lapse(t) = (policies_inforce(t) .- policies_death(t)) .* (1 - (1 - lapse_rate(t))^(1/12))
+lapse_rate(t) = max(0.1 - 0.02 * duration(t), 0.02)
+policies_term() = current_policies_term[]
+function policies_maturity(t)
+  (t .== 12 .* policies_term()) .* (policies_inforce(t - 1) .- policies_lapse(t - 1) .- policies_death(t - 1))::Vector{Float64}
+end
+const cache_policies_inforce = Dict{Tuple{Int64},Vector{Float64}}()
+@memoize Returns(cache_policies_inforce)() function policies_inforce(t)::Vector{Float64}
+  t == 0 && return ones(npoints())
+  policies_inforce(t - 1) .- policies_lapse(t - 1) .- policies_death(t - 1) .- policies_maturity(t)
+end
+
+npoints() = length(issue_age[])
 disc_factor(t) = (1 + zero_spot[duration(t)+1])^(-t/12)
 pv_claims() = foldl((res, t) -> (res .+= claims(t) .* disc_factor(t)), 0:final_timestep[]; init = zeros(Float64, npoints()))
 pv_commissions() = foldl((res, t) -> (res .+= commissions(t) .* disc_factor(t)), 0:final_timestep[]; init = zeros(Float64, npoints()))
 pv_expenses() = foldl((res, t) -> (res .+= expenses(t) .* disc_factor(t)), 0:final_timestep[]; init = zeros(Float64, npoints()))
 pv_pols_if() = foldl((res, t) -> (res .+= policies_inforce(t) .* disc_factor(t)), 0:final_timestep[]; init = zeros(Float64, npoints()))
 pv_premiums() = foldl((res, t) -> (res .+= premiums(t) .* disc_factor(t)), 0:final_timestep[]; init = zeros(Float64, npoints()))
-
-net_premium_pp() = pv_claims() ./ pv_pols_if()
-const cache_premiums_pp = Dict{Tuple{},Vector{Float64}}()
-@memoize Returns(cache_premiums_pp)() premium_pp() = round.((1 .+ loading_prem) .* net_premium_pp(); digits = 2)
-premiums(t::Int) = premium_pp() .* policies_inforce(t)
 pv_net_cf() = pv_premiums() .- pv_claims() .- pv_expenses() .- pv_commissions()
-
-net_cf(t::Int) = premiums(t) .- claims(t) .- expenses(t) .- commissions(t)
 
 function result_cf()
     data = Dict(
