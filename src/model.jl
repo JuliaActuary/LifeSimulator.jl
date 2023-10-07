@@ -93,4 +93,4 @@ acquisition_cost(model::LifelibBasiclife) = model.acquisition_cost
 annual_lapse_rate(model::LifelibBasiclife, time::Month) = max(0.1 - 0.02 * (Dates.value(time) ÷ 12), 0.02)
 discount_rate(model::LifelibBasiclife, time::Month) = (1 + model.discounts[1 + Dates.value(time) ÷ 12])^(-Dates.value(time) / 12)
 
-ntimesteps(::LifelibBasiclife) = final_timestep[]
+function ntimesteps end
