@@ -47,6 +47,17 @@ function Base.empty!(events::SimulationEvents)
   events
 end
 
+function Base.show(io::IO, ::MIME"text/plain", events::SimulationEvents)
+  print(io, SimulationEvents, ':')
+  print(io, "\n● Time range: months ", Dates.value(events.time), " to ", Dates.value(events.time) + 1)
+  print(io, "\n● Total deaths: ", sum(last, events.deaths), " over ", length(events.deaths), " policy sets")
+  print(io, "\n● Total lapses: ", sum(last, events.lapses), " over ", length(events.lapses), " policy sets")
+  print(io, "\n● Number of policies starting at the beginning of month ", Dates.value(events.time), ": ", sum(policy_count, events.starts; init = 0.0))
+  print(io, "\n● Policy expirations: ", sum(policy_count, events.expirations; init = 0.0), " (", length(events.expirations), " policy sets)")
+  print(io, "\n● Claims: ", events.claimed)
+  print(io, "\n● Expenses: ", events.expenses)
+end
+
 """
 Simulation parametrized by a particular [`Model`](@ref).
 
