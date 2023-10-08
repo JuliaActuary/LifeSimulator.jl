@@ -1,3 +1,15 @@
+module BasicTermMemoized
+
+using DataFrames
+using CSV
+using Memoize
+using Dates
+using StructEquality: @struct_hash_equal
+using ..LifeSimulator: BasicMortality, read_csv, Policy, PolicySet, policies_from_csv, policy_count
+
+const final_timestep = Ref{Int}(240)
+duration(t::Int) = t ÷ 12
+
 const zero_spot = read_csv("basic_term/disc_rate_ann.csv")[:, :zero_spot]
 const inflation_rate = 0.01
 const expense_acq = 300
@@ -84,3 +96,29 @@ function result_pv()
             cols .=> pvs,
         ))
 end
+
+const cache_monthly_basic_mortality = Dict{Tuple{Int},Vector{Float64}}()
+monthly_mortality_rates(model::BasicMortality, t::Int) = 1 .- (1 .- model.rates[issue_age[] .+ (t ÷ 12) .- 17, min(t ÷ 12, 5) + 1]) .^ (1/12)
+@memoize Returns(cache_monthly_basic_mortality)() monthly_basic_mortality(t) = monthly_mortality_rates(basic_mortality[], t)
+
+const sum_assured = Ref{Vector{Int}}()
+const issue_age = Ref{Vector{Int}}()
+const current_policies_term = Ref{Vector{Int}}()
+const basic_term_policies = Ref{Vector{PolicySet}}()
+const basic_mortality = Ref{BasicMortality}()
+set_basic_term_policies!(policies_from_csv("basic_term/model_point_table_10K.csv"))
+
+export
+  empty_memoization_caches!,
+  set_basic_term_policies!,
+
+  pv_claims,
+  pv_premiums,
+  pv_commissions,
+  pv_expenses,
+  pv_net_cf,
+
+  result_pv,
+  result_cf
+
+end # module
