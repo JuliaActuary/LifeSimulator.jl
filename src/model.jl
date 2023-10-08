@@ -83,6 +83,8 @@ Term life insurance model replicating the functionality of lifelib's `basiclife`
   acquisition_cost::Float64 = 300.0
   "Annual maintenance cost per policy."
   annual_maintenance_cost::Float64 = 60.0
+  "Agents selling insurance products get paid a commission, whose value is a percentage of the premium paid during the first year."
+  commission_rate::Float64 = 0.60
   "Roughly estimated average for the inflation rate."
   inflation_rate::Float64 = 0.01
   discounts::Vector{Float64} = read_csv("basic_term/disc_rate_ann.csv")[:, :zero_spot]

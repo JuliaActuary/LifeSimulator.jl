@@ -1,5 +1,3 @@
-using LifeSimulator: compute_premiums
-
 @testset "Memoized term life model" begin
   empty_memoization_caches!()
 
@@ -32,8 +30,8 @@ using LifeSimulator: compute_premiums
 end
 
 @testset "Simulated term life model" begin
-  model = LifelibBasiclife()
-  @test model == LifelibBasiclife()
+  model = LifelibBasiclife(commission_rate = 1.0)
+  @test model == LifelibBasiclife(commission_rate = 1.0)
 
   @test LS.monthly_mortality_rate(model, Year(47), Month(0)) == BT.monthly_mortality_rates(BT.mortality[], 0)[1]
   @test LS.monthly_mortality_rate(model, Year(49), Month(24)) == BT.monthly_mortality_rates(BT.mortality[], 24)[1]

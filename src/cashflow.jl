@@ -60,25 +60,32 @@ function CashFlow(sim::Simulation)
     premiums += policy_count(set) * set.policy.premium
     expenses += policy_count(set) * model.annual_maintenance_cost / 12 * inflation
   end
-  commissions = time < Month(12) ? premiums : 0.0
+  commissions = time < Month(12) ? premiums * model.commission_rate : 0.0
   CashFlow(premiums, 0.0, 0.0, expenses, commissions, 0.0, discount_rate(model, time))
 end
 
-function CashFlow(sim::Simulation{<:LifelibSavings}, n::Integer)
+CashFlow(f, model::Model, policies, n::Integer) = CashFlow(f, Simulation(model, policies), n)
+CashFlow(model::Model, policies, n::Integer) = CashFlow(identity, Simulation(model, policies), n)
+CashFlow(sim::Simulation, n::Integer) = CashFlow(identity, sim, n)
+
+function CashFlow(f, sim::Simulation{<:LifelibSavings}, n::Integer)
   cashflow = Ref(CashFlow())
   simulate!(sim, n) do events
-    cashflow[] += CashFlow(events, sim.model)
+    cashflow[] += f(CashFlow(events, sim.model))
   end
   cashflow[]
 end
 
-function CashFlow(sim::Simulation{<:LifelibBasiclife}, n::Integer)
-  cashflow = Ref(CashFlow())
+function CashFlow(f, sim::Simulation{<:LifelibBasiclife}, n::Integer)
+  accumulated_cashflow = CashFlow()
   events = SimulationEvents()
   for i in 1:n
-    events = next!(sim, events; callback = sim -> (cashflow[] += CashFlow(sim)))
-    cashflow[] += CashFlow(events, sim.model)
+    cashflow = CashFlow()
+    events = next!(sim, events; callback = sim -> (cashflow += CashFlow(sim)))
+    cashflow += CashFlow(events, sim.model)
+    f(cashflow)
+    accumulated_cashflow += cashflow
     empty!(events)
   end
-  cashflow[]
+  accumulated_cashflow
 end

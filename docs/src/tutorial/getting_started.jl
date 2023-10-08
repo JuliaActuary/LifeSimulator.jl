@@ -8,29 +8,36 @@ First, we have to choose a [`Model`](@ref) to simulate. There are a few to choos
 
 =#
 
-using LifeSimulator
+using LifeSimulator, Dates
 model = LifelibBasiclife()
 
 #=
 
-Second, we define a bunch of policies that we want to simulate forward in time. Such policies represent life insurance products. Ideally, we would simulate individual products, that is, separate contracts for different customers. However, for efficiency and scalability reasons, such insurance products are implemented as sets of products. That is, a contract is weighted by a number of customers holding this type of contract. those are called [`PolicySet`]s, which we can generate randomly using `Base.rand`:
+Second, we define a bunch of policies that we want to simulate forward in time. Such policies represent life insurance products. Ideally, we would simulate individual products, that is, separate contracts for different customers. However, for efficiency and scalability reasons, such insurance products are implemented as sets of products. That is, a contract is weighted by a number of customers holding this type of contract. those are called [`PolicySet`]s. We can generate some randomly using `Base.rand`:
 
 =#
 
-policies = rand(PolicySet, 500)
+rand(PolicySet, 500)
+
+# But for this example, we'll use a small set of fixed policies to guarantee the consistency of results across runs (which will allow us to reliably interpret what we obtain). We'll stick to the default values for the most part.
+
+policies = [
+  PolicySet(Policy(term = Year(20), age = Year(20), premium = 200_000), 100),
+  PolicySet(Policy(term = Year(20), age = Year(45), premium = 600_000), 80),
+  PolicySet(Policy(term = Year(10), age = Year(70), premium = 400_000), 50),
+]
 
 #=
 
-Now that we have a model and policies to evolve over time, let us summon a [`Simulation`](@ref) before carrying out the computation over a specified time range.
+Now that we have a model and policies to evolve over time, we can carry out a simulation using [`simulate`](@ref) over a specified time range.
+
+First, as we're just experimenting, we can simulate a single step and print what happened during that time. The data structure that will be provided to our custom callback function will be a [`SimulationEvents`](@ref), and we can just print it out for now.
+
 
 =#
 
-simulation = Simulation(model, policies)
-
-# First, as we're just experimenting, we can simulate a single step and print what happened during that time. The data structure that will be provided to our custom callback function will be a [`SimulationEvents`](@ref), and we can just print it out for now.
-
 n = 1 # number of timesteps
-simulate!(simulation, n) do events
+simulate(model, policies, n) do events
   println(sprint(show, MIME"text/plain"(), events))
 end;
 
@@ -44,9 +51,7 @@ Now, instead of printing the raw [`SimulationEvents`](@ref), we can print the as
 
 =#
 
-## Prepare a new simulation, the other one has been modified by `simulate!`.
-simulation = Simulation(model, policies)
-simulate!(simulation, n) do events
+simulate(model, policies, n) do events
   cf = CashFlow(events, model)
   println("Net cash flow: ", cf.net)
 end;
@@ -55,7 +60,7 @@ end;
 
 We got a negative cashflow, from the perspective of the insurance company. Why is that? In our model, establishing new contracts (policies) has a fixed cost, which is part of the expenses reported by the [`SimulationEvents`](@ref) during printing earlier.
 
-But note that we only computed cash flows due to the various events that occurred during the simulation. We have not computed cash flows related to active policies, and therefore, our value for the net cash flow is incomplete! Let's fix that:
+But note that we only computed cash flows due to the various events that occurred during the simulation. We have not computed cash flows related to active policies, and therefore, our value for the net cash flow is incomplete! Let's fix that. We will need to manually build a [`Simulation`](@ref) object so we can reference during the computation of cash flows, and use [`simulate!`](@ref) to mutate this simulation in-place. Note that the [`simulate`](@ref) function essentially does the same thing, it's just that it won't give you access to the simulation object itself.
 
 =#
 
@@ -66,4 +71,26 @@ simulate!(simulation, n) do events
   println("Net cash flow: ", cf.net)
 end;
 
-##XXX: Why do we get negative cash flows all the way?
+#=
+
+Note how the net cashflow is now positive: the premiums balance out the costs incurred by policy acquisitions to the insurance company,
+as well as claims made during that period.
+
+Instead of building a `Simulation`, and then computing cash flows manually, convenience functions are provided when the sole interest of the simulation is to compute cash flows:
+
+=#
+
+n = 5
+CashFlow(model, policies, n)
+
+#-
+
+CashFlow(model, policies, n) do cashflow
+  println("Net cash flow: ", cashflow.net)
+end;
+
+#=
+
+For term life insurance products, it will be normal for the company to have a decreasing revenue over time, as the premium remains fixed while mortality increases. An exception is typically made for the first year, during which commissions to agents are generally paid a large percentage of the premium.
+
+=#
