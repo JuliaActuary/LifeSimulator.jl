@@ -151,7 +151,7 @@ end
     discount_factors = LifeSimulator.discount_rate.(model, simulation_range(n - 1))
     @test discount_factors ≈ pyconvert(Array, proj.disc_factors())
     @test final_cashflow.discounted ≈ sum(pyconvert(Array, proj.pv_net_cf()))
-    @test final_cashflow == CashFlow(Simulation(model, policies), n)
+    @test final_cashflow == CashFlow(model, policies, n)
   end
 
   @testset "LifeSimulator" begin
