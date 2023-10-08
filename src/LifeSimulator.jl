@@ -19,6 +19,7 @@ include("policy.jl")
 include("model.jl")
 include("simulation.jl")
 include("cashflow.jl")
+include("show.jl")
 
 include("BasicTermMemoized.jl")
 @reexport using .BasicTermMemoized
