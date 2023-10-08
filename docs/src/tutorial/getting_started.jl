@@ -13,7 +13,7 @@ model = LifelibBasiclife()
 
 #=
 
-Second, we define a bunch of policies that we want to simulate forward in time. Such policies represent life insurance products. Ideally, we would simulate individual products, that is, separate contracts for different customers. However, for efficiency and scalability reasons, such insurance products are implemented as sets of products. That is, a contract is weighted by a number of customers holding this type of contract. those are called [`PolicySet`]s. We can generate some randomly using `Base.rand`:
+Second, we define a bunch of policies that we want to simulate forward in time. Such policies represent life insurance products. Ideally, we would simulate individual products, that is, separate contracts for different customers. However, for efficiency and scalability reasons, such insurance products are implemented as sets of products. That is, a contract is weighted by a number of customers holding this type of contract. those are called [`PolicySet`](@ref)s. We can generate some randomly using `Base.rand`:
 
 =#
 
@@ -31,7 +31,7 @@ policies = [
 
 Now that we have a model and policies to evolve over time, we can carry out a simulation using [`simulate`](@ref) over a specified time range.
 
-First, as we're just experimenting, we can simulate a single step and print what happened during that time. The data structure that will be provided to our custom callback function will be a [`SimulationEvents`](@ref), and we can just print it out for now.
+First, as we're just experimenting, we can simulate a single step (which is equivalent to a single month) and print what happened during that time. The data structure that will be provided to our custom callback function will be a [`SimulationEvents`](@ref), and we can just print it out for now.
 
 
 =#
@@ -74,9 +74,9 @@ end;
 #=
 
 Note how the net cashflow is now positive: the premiums balance out the costs incurred by policy acquisitions to the insurance company,
-as well as claims made during that period.
+as well as claims made during that period. It even turns out that commissions on said premiums now actually make most of the cash flow; indeed, by default there is a 60% commission rate for the first year.
 
-Instead of building a `Simulation`, and then computing cash flows manually, convenience functions are provided when the sole interest of the simulation is to compute cash flows:
+Instead of building a `Simulation`, and then computing cash flows manually, convenience functions are provided when the sole interest of the simulation is to compute cash flows. Let's for example simulate 5 months now and see what we get:
 
 =#
 
