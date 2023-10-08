@@ -57,12 +57,12 @@ end
     @test events.claimed ≈ sum(BT.claims(t))
   end
 
-  with_adjusted_premiums = compute_premiums(model, policies, n)
+  with_adjusted_premiums = estimate_premiums(model, policies, n)
   @test (x -> x.policy.premium).(with_adjusted_premiums) == BT.premium_pp()
 
-  cashflow = CashFlow(Simulation(model, policies), 1)
+  cashflow = CashFlow(Simulation(model, estimate_premiums(model, policies, 1)), 1)
   @test cashflow.expenses ≈ sum(BT.expenses(0))
-  cashflow = CashFlow(Simulation(model, policies), n)
+  cashflow = CashFlow(Simulation(model, estimate_premiums(model, policies, n)), n)
   @test sum(sum.(BT.claims.(0:n))) ≈ cashflow.claims
   @test sum(sum.(BT.premiums.(0:n))) ≈ cashflow.premiums
   @test sum(sum.(BT.commissions.(0:n))) ≈ cashflow.commissions

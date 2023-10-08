@@ -28,7 +28,7 @@ export
   Policy, policies_from_csv,
   PolicySet, policy_count,
   MortalityModel, ConstantMortality, ExplicitMortality,
-  Model, TermLifeModel, UniversalLifeModel, LifelibBasiclife, LifelibSavings, investment_rate, brownian_motion,
+  Model, TermLifeModel, UniversalLifeModel, LifelibBasiclife, LifelibSavings, investment_rate, brownian_motion, estimate_premiums,
   Simulation, SimulationEvents, SimulationResult, SHOW_PROGRESS, next!, simulate, simulate!, simulation_range,
   CashFlow, ntimesteps, use_policies!
 end

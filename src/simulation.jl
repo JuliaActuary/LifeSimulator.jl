@@ -136,27 +136,13 @@ function show_progress(sim::Simulation, i::Int, n::Int)
   print("\rSimulating ($model): $i/$n steps               ")
 end
 
-"Perform a first simulation to estimate the premiums to set per policy."
-function compute_premiums!(sim::Simulation{<:LifelibBasiclife}, n::Int)
-  policies = compute_premiums(sim.model, [sim.active_policies; sim.inactive_policies], n)
-  empty!(sim.active_policies)
-  copyto!(sim.inactive_policies, policies)
-  sim.time = Month(0)
-  sim
-end
-
-function simulate!(f, sim::Simulation{<:LifelibBasiclife}, n::Int)
-  compute_premiums!(sim, n)
-  @invoke simulate!(f::Any, sim::Simulation, n::Int)
-end
-
 """
 Run a first simulation to estimate premiums for each policy, returning policies with the estimated premiums.
 
 Instead of running a full simulation, and producing a [`SimulationEvents`](@ref) at every step,
-we go through the lapse and mortality stages manually to speed it up a bit.
+we manually go through the lapse and mortality stages only to speed it up a bit.
 """
-function compute_premiums(model::LifelibBasiclife, policies, n)
+function estimate_premiums(model::LifelibBasiclife, policies, n)
   policy_counts = policy_count.(policies)
   expired = Set{PolicySet}()
   discounted_claims = zeros(length(policies))
