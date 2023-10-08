@@ -27,7 +27,7 @@ export
   Sex, MALE, FEMALE,
   Policy, policies_from_csv,
   PolicySet, policy_count,
-  MortalityModel, ConstantMortality, BasicMortality,
+  MortalityModel, ConstantMortality, ExplicitMortality,
   Model, TermLifeModel, UniversalLifeModel, LifelibBasiclife, LifelibSavings, investment_rate, brownian_motion,
   Simulation, SimulationEvents, SimulationResult, SHOW_PROGRESS, next!, simulate, simulate!, simulation_range,
   CashFlow, ntimesteps, use_policies!

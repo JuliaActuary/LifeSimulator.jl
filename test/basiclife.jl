@@ -35,10 +35,10 @@ end
   model = LifelibBasiclife()
   @test model == LifelibBasiclife()
 
-  @test LS.monthly_mortality_rate(model, Year(47), Month(0)) == BT.monthly_mortality_rates(BT.basic_mortality[], 0)[1]
-  @test LS.monthly_mortality_rate(model, Year(49), Month(24)) == BT.monthly_mortality_rates(BT.basic_mortality[], 24)[1]
-  @test LS.monthly_mortality_rate(model, Year(51), Month(49)) == BT.monthly_mortality_rates(BT.basic_mortality[], 49)[1]
-  @test LS.monthly_mortality_rate(model, Year(26), Month(49)) == BT.monthly_mortality_rates(BT.basic_mortality[], 49)[end]
+  @test LS.monthly_mortality_rate(model, Year(47), Month(0)) == BT.monthly_mortality_rates(BT.mortality[], 0)[1]
+  @test LS.monthly_mortality_rate(model, Year(49), Month(24)) == BT.monthly_mortality_rates(BT.mortality[], 24)[1]
+  @test LS.monthly_mortality_rate(model, Year(51), Month(49)) == BT.monthly_mortality_rates(BT.mortality[], 49)[1]
+  @test LS.monthly_mortality_rate(model, Year(26), Month(49)) == BT.monthly_mortality_rates(BT.mortality[], 49)[end]
   @test LS.annual_lapse_rate(model, Month(0)) == BT.lapse_rate(0)
   @test LS.annual_lapse_rate(model, Month(12)) == BT.lapse_rate(12)
   @test LS.monthly_lapse_rate(model, Month(0)) == (1 - (1 - BT.lapse_rate(0))^(1/12))
