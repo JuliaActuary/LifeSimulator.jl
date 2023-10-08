@@ -53,7 +53,7 @@ Now, instead of printing the raw [`SimulationEvents`](@ref), we can print the as
 
 simulate(model, policies, n) do events
   cf = CashFlow(events, model)
-  println("Net cash flow: ", cf.net)
+  println(sprint(show, MIME"text/plain"(), cf; context = :color => true))
 end;
 
 #=
@@ -68,7 +68,7 @@ simulation = Simulation(model, policies)
 simulate!(simulation, n) do events
   cf = CashFlow(simulation) # premiums, policy upkeep costs, commissions
   cf += CashFlow(events, model) # claims, costs for new policies
-  println("Net cash flow: ", cf.net)
+  println(sprint(show, MIME"text/plain"(), cf; context = :color => true))
 end;
 
 #=
@@ -86,7 +86,7 @@ CashFlow(model, policies, n)
 #-
 
 CashFlow(model, policies, n) do cashflow
-  println("Net cash flow: ", cashflow.net)
+  println(sprint(show, MIME"text/plain"(), cashflow; context = :color => true))
 end;
 
 #=
