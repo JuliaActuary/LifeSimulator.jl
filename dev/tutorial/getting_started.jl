@@ -8,6 +8,8 @@ First, we have to choose a [`Model`](@ref) to simulate. There are a few to choos
 
 =#
 
+display(x) = println(sprint(show, MIME"text/plain"(), x; context = :color => true)) # hide
+
 using LifeSimulator, Dates
 model = LifelibBasiclife()
 
@@ -38,7 +40,7 @@ First, as we're just experimenting, we can simulate a single step (which is equi
 
 n = 1 # number of timesteps
 simulate(model, policies, n) do events
-  println(sprint(show, MIME"text/plain"(), events))
+  display(events)
 end;
 
 #=
@@ -53,7 +55,7 @@ Now, instead of printing the raw [`SimulationEvents`](@ref), we can print the as
 
 simulate(model, policies, n) do events
   cf = CashFlow(events, model)
-  println(sprint(show, MIME"text/plain"(), cf; context = :color => true))
+  display(cf)
 end;
 
 #=
@@ -68,7 +70,7 @@ simulation = Simulation(model, policies)
 simulate!(simulation, n) do events
   cf = CashFlow(simulation) # premiums, policy upkeep costs, commissions
   cf += CashFlow(events, model) # claims, costs for new policies
-  println(sprint(show, MIME"text/plain"(), cf; context = :color => true))
+  display(cf)
 end;
 
 #=
@@ -86,7 +88,7 @@ CashFlow(model, policies, n)
 #-
 
 CashFlow(model, policies, n) do cashflow
-  println(sprint(show, MIME"text/plain"(), cashflow; context = :color => true))
+  display(cashflow)
 end;
 
 #=
