@@ -5,7 +5,7 @@ using CSV
 using Memoize
 using Dates
 using StructEquality: @struct_hash_equal
-using ..LifeSimulator: ExplicitMortality, read_csv, Policy, PolicySet, policies_from_csv, policy_count
+using ..LifeSimulator: TabularMortality, read_csv, Policy, PolicySet, policies_from_csv, policy_count
 
 const final_timestep = Ref{Int}(240)
 duration(t::Int) = t ÷ 12
@@ -23,7 +23,7 @@ function recompute_globals!()
     sum_assured[] = getproperty.(policies, :assured)
     issue_age[] = Dates.value.(getproperty.(policies, :age))
     current_policies_term[] = Dates.value.(getproperty.(policies, :term)) .* Int.(policy_count.(sets))
-    mortality[] = ExplicitMortality()
+    mortality[] = TabularMortality()
     empty_memoization_caches!()
 end
 
@@ -98,14 +98,14 @@ function result_pv()
 end
 
 const cache_monthly_mortality = Dict{Tuple{Int},Vector{Float64}}()
-monthly_mortality_rates(model::ExplicitMortality, t::Int) = 1 .- (1 .- model.rates[issue_age[] .+ (t ÷ 12) .- 17, min(t ÷ 12, 5) + 1]) .^ (1/12)
+monthly_mortality_rates(model::TabularMortality, t::Int) = 1 .- (1 .- model.rates[issue_age[] .+ (t ÷ 12) .- 17, min(t ÷ 12, 5) + 1]) .^ (1/12)
 @memoize Returns(cache_monthly_mortality)() monthly_mortality(t) = monthly_mortality_rates(mortality[], t)
 
 const sum_assured = Ref{Vector{Int}}()
 const issue_age = Ref{Vector{Int}}()
 const current_policies_term = Ref{Vector{Int}}()
 const basic_term_policies = Ref{Vector{PolicySet}}()
-const mortality = Ref{ExplicitMortality}()
+const mortality = Ref{TabularMortality}()
 set_basic_term_policies!(policies_from_csv("basic_term/model_point_table_10K.csv"))
 
 export

@@ -10,8 +10,8 @@ abstract type Model end
 
 # XXX: Clarify conversions from 0-based and 1-based annual "rates" to monthly "rates".
 monthly_rate(annual_rate) = (1 + annual_rate)^(1/12) - 1
-monthly_mortality_rate(model::Model, age::Year, time::Month) = monthly_mortality_rate(model.mortality, age, time)
-monthly_lapse_rate(model::Model, time::Month) = (1 - (1 - annual_lapse_rate(model, time))^(1/12))
+monthly_mortality_rate(model::Model, args...) = monthly_mortality_rate(model.mortality, args...)
+monthly_lapse_rate(model::Model, args...) = monthly_lapse_rate(model.lapse, args...)
 
 Base.broadcastable(model::Model) = Ref(model)
 
@@ -32,9 +32,9 @@ abstract type UniversalLifeModel <: Model end
 """
 Universal life model reimplemented from [lifelib's savings library](https://lifelib.io/libraries/savings/index.html).
 """
-@struct_hash_equal Base.@kwdef struct LifelibSavings{M<:MortalityModel} <: UniversalLifeModel
-  annual_lapse_rate::Float64 = 0.00
+@struct_hash_equal Base.@kwdef struct LifelibSavings{M<:MortalityModel,L<:LapseModel} <: UniversalLifeModel
   mortality::M = ConstantMortality(0.0)
+  lapse::L = ConstantLapse(0.0)
   maintenance_fee_rate::Float64 = 0.00
   commission_rate::Float64 = 0.05
   insurance_risk_cost::Float64 = 0.00 # could be set as a function of the mortality rate
@@ -50,11 +50,8 @@ Universal life model reimplemented from [lifelib's savings library](https://life
 end
 
 brownian_motion(n::Integer; μ = 0.02, σ = 0.03, Δt = 1/12) = exp.((μ - σ^2/2)Δt .+ σ√(Δt) .* randn(n)) .- 1
-# TODO: Implement a mortality model.
-annual_mortality_rate(::LifelibSavings, ::Month) = 0.0
-# TODO: Take the account value after the premium is versed and before account fees (`BEF_FEE`).
+# TODO: Take the account value after the premium is versed and before account fees (`BEF_FEE`), not after.
 amount_at_risk(::LifelibSavings, policy::Policy, av_before_fees) = max(av_before_fees, policy.assured)
-annual_lapse_rate(model::LifelibSavings, ::Month) = model.annual_lapse_rate
 
 investment_rate(model::LifelibSavings, t::Month) = model.investment_rates[1 + Dates.value(t)]
 
@@ -76,8 +73,9 @@ abstract type TermLifeModel <: Model end
 """
 Term life insurance model replicating the functionality of lifelib's `basiclife` module.
 """
-@struct_hash_equal Base.@kwdef struct LifelibBasiclife{M<:MortalityModel} <: TermLifeModel
-  mortality::M = ExplicitMortality()
+@struct_hash_equal Base.@kwdef struct LifelibBasiclife{M<:MortalityModel,L<:LapseModel} <: TermLifeModel
+  mortality::M = TabularMortality()
+  lapse::L = TimeVaryingLapse(t::Month -> max(0.1 - 0.02 * (Dates.value(t) ÷ 12), 0.02))
   load_premium_rate::Float64 = 0.50
   "One-time cost for new policies."
   acquisition_cost::Float64 = 300.0

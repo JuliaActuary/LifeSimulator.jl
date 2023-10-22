@@ -98,6 +98,7 @@ compute and keep track of cashflows.
 See also: [`SimulationEvents`](@ref), [`CashFlow`](@ref)
 """
 simulate(f, model::Model, policies, n::Int) = simulate!(f, Simulation(model, policies), n)
+simulate(model::Model, policies, n::Int) = simulate(identity, model, policies, n)
 simulate!(sim::Simulation, n::Int) = simulate!(identity, sim, n)
 
 """
@@ -140,16 +141,18 @@ function estimate_premiums(model::LifelibBasiclife, policies, n)
   # Record claims associated to deaths at `time` and the policy counts at `time + 1`.
   for time in simulation_range(n + 1)
     discount = discount_rate(model, time)
+    !rates_are_per_policy(model.lapse) && (lapse_rate = monthly_lapse_rate(model, time))
     lapse_rate = monthly_lapse_rate(model, time)
     for (i, set) in enumerate(policies)
       expires(set, time) && push!(expired, set)
       in(set, expired) && continue
       current_count = policy_counts[i]
       discounted_policy_counts[i] += current_count * discount
-      mortality_rate = monthly_mortality_rate(model, set.policy.age + Year(Dates.value(time ÷ 12)), time)
+      mortality_rate = monthly_mortality_rate(model, time, set.policy)
       deaths = mortality_rate * current_count
       current_count -= deaths
       discounted_claims[i] += deaths * set.policy.assured * discount
+      rates_are_per_policy(model.lapse) && (lapse_rate = monthly_lapse_rate(model, time, policy))
       lapses = lapse_rate * current_count
       current_count -= lapses
       policy_counts[i] = current_count
@@ -244,13 +247,14 @@ expires(policy::Policy, time::Month) = time == policy.issued_at + Month(policy.t
 expires(set::PolicySet, time::Month) = expires(set.policy, time)
 
 function simulate_deaths_and_lapses!(events::SimulationEvents, sim::Simulation)
-  lapse_rate = monthly_lapse_rate(sim.model, events.time)
+  !rates_are_per_policy(sim.model.lapse) && (lapse_rate = monthly_lapse_rate(sim.model, events.time))
   for (i, set) in enumerate(sim.active_policies)
     remaining = policy_count(set)
     (; policy) = set
-    mortality_rate = monthly_mortality_rate(sim.model, policy.age + Year(Dates.value(events.time ÷ 12)), events.time)
+    mortality_rate = monthly_mortality_rate(sim.model, events.time, policy)
     deaths = mortality_rate * remaining
     remaining -= deaths
+    rates_are_per_policy(sim.model.lapse) && (lapse_rate = monthly_lapse_rate(sim.model, events.time, policy))
     lapses = lapse_rate * remaining
     remaining -= lapses
     sim.active_policies[i] = PolicySet(policy, remaining)

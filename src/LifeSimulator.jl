@@ -14,8 +14,9 @@ function read_csv(file)
   CSV.read(file, DataFrame)
 end
 
-include("mortality.jl")
 include("policy.jl")
+include("mortality.jl")
+include("lapse.jl")
 include("model.jl")
 include("simulation.jl")
 include("cashflow.jl")
@@ -28,7 +29,8 @@ export
   Sex, MALE, FEMALE,
   Policy, policies_from_csv,
   PolicySet, policy_count,
-  MortalityModel, ConstantMortality, ExplicitMortality,
+  MortalityModel, ConstantMortality, TabularMortality, PolicyVaryingMortality,
+  LapseModel, ConstantLapse, TimeVaryingLapse, PolicyVaryingLapse,
   Model, TermLifeModel, UniversalLifeModel, LifelibBasiclife, LifelibSavings, investment_rate, brownian_motion, estimate_premiums,
   Simulation, SimulationEvents, SimulationResult, SHOW_PROGRESS, next!, simulate, simulate!, simulation_range,
   CashFlow, ntimesteps, use_policies!

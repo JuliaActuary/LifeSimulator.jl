@@ -99,7 +99,7 @@ end
       PolicySet(Policy(issued_at = Month(0)), 50),
       PolicySet(Policy(issued_at = Month(1)), 50),
     ]
-    model = LifelibSavings(annual_lapse_rate = 0.01)
+    model = LifelibSavings(lapse = ConstantLapse(0.01))
     sim = Simulation(model, policies)
     @test length(sim.active_policies) == 1
     @test length(sim.inactive_policies) == 2
@@ -122,7 +122,7 @@ end
     @test n > 4_995_000
 
     policies = policies_from_csv(proj)
-    model = LifelibSavings(annual_lapse_rate = 0.00)
+    model = LifelibSavings(lapse = ConstantLapse(0.00))
     sim = Simulation(model, policies)
     simulate!(sim, 12)
     @test sum(policy_count, sim.active_policies) == 900.0
