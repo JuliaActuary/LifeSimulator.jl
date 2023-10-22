@@ -40,11 +40,7 @@ policies = [
 sim = simulate(model, policies, 60)
 
 male, female = sim.active_policies
-male.count
-
-#-
-
-female.count
+(male.count, female.count)
 
 #=
 
@@ -80,11 +76,7 @@ policies = [
 sim = simulate(model, policies, 60)
 
 male, female = sim.active_policies
-male.count
-
-#-
-
-female.count
+(male.count, female.count)
 
 # Of course, we can customize both mortality and lapse models at the same time:
 
@@ -98,8 +90,12 @@ policies = [
 sim = simulate(model, policies, 60)
 
 male, female = sim.active_policies
-male.count
+(male.count, female.count)
 
-#-
+# And this also works with the [`LifelibSavings`](@ref) model:
 
-female.count
+model = LifelibSavings(; mortality, lapse)
+sim = simulate(model, policies, 60)
+
+male, female = sim.active_policies
+(male.count, female.count)
