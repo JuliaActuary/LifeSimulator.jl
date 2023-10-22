@@ -29,7 +29,8 @@ makedocs(;
   pages = [
     "Home" => "index.md",
     "Tutorials" => [
-    "tutorial/getting_started.md",
+      "tutorial/getting_started.md",
+      "tutorial/customizing_models.md",
     ],
     "Reference" => "reference.md",
   ],

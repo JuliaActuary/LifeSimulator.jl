@@ -1,4 +1,43 @@
+"""
+Mortality model.
+
+A given subtype `M` is expected to define either of:
+- ```julia
+  monthly_mortality_rate(model::M, time::Month, policy::Policy)
+  ```
+- ```julia
+  monthly_mortality_rate(model::M, time::Month, age::Year)
+  ```
+- ```julia
+  annual_mortality_rate(model::M, time::Month, policy::Policy)
+  ```
+- ```julia
+  annual_mortality_rate(model::M, time::Month, age::Year)
+  ```
+
+where, by default, the form with `Policy` as third argument simply defaults to computing the age at the current time and call a method with `age::Year` as third argument, defined for convenience.
+"""
 abstract type MortalityModel end
+
+"""
+    monthly_mortality_rate(model::MortalityModel, time::Month, policy::Policy)
+    monthly_mortality_rate(model::MortalityModel, time::Month, age::Year)
+
+Compute the monthly mortality rate for the given model.
+Falls back to a renormalization of [`annual_mortality_rate`] over 1/12 year.
+"""
+function monthly_mortality_rate end
+
+"""
+    annual_mortality_rate(model::MortalityModel, time::Month, policy::Policy)
+    annual_mortality_rate(model::MortalityModel, time::Month, age::Year)
+
+Compute an annual mortality rate for the given model.
+
+!!! note
+    Simulations with [`simulate`](@ref) will use [`monthly_mortality_rate`](@ref). If your model more naturally outputs monthly mortality rates, we recommend you to extend [`monthly_mortality_rate`](@ref) instead.
+"""
+function annual_mortality_rate end
 
 Base.broadcastable(model::MortalityModel) = Ref(model)
 monthly_mortality_rate(model::MortalityModel, time::Month, age::Year) = 1 - (1 - annual_mortality_rate(model, time, age)) ^ (1/12)

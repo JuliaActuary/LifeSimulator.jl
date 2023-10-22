@@ -1,4 +1,43 @@
+"""
+Model expressing lapses, e.g. due to payment defaults.
+
+A given subtype `L` is expected to define either of:
+- ```julia
+  monthly_lapse_rate(model::L, time::Month)
+  ```
+- ```julia
+  monthly_lapse_rate(model::L, time::Month, policy::Policy)
+  ```
+- ```julia
+  annual_lapse_rate(model::L, time::Month)
+  ```
+- ```julia
+  annual_lapse_rate(model::L, time::Month, policy::Policy)
+  ```
+
+Whether to define a 2- or 3-argument method depends on whether the lapse rate as computed by the model is policy-specific. In such a case, in addition of defining 3-argument methods, you must implement `rates_are_per_policy(::LapseModel) = true`; the default is for it to be `false` implying that 2-argument methods are required.
+"""
 abstract type LapseModel end
+
+"""
+monthly_lapse_rate(model::LapseModel, time::Month)
+    monthly_lapse_rate(model::LapseModel, time::Month, policy::Policy)
+
+Compute the monthly lapse rate for the given model.
+Falls back to a renormalization of [`annual_lapse_rate`] over 1/12 year.
+"""
+function monthly_lapse_rate end
+
+"""
+annual_lapse_rate(model::LapseModel, time::Month)
+    annual_lapse_rate(model::LapseModel, time::Month, policy::Policy)
+
+Compute an annual lapse rate for the given model.
+
+!!! note
+    Simulations with [`simulate`](@ref) will use [`monthly_lapse_rate`](@ref). If your model more naturally outputs monthly lapse rates, we recommend you to extend [`monthly_lapse_rate`](@ref) instead.
+"""
+function annual_lapse_rate end
 
 Base.broadcastable(model::LapseModel) = Ref(model)
 monthly_lapse_rate(model::LapseModel, time::Month) = 1 - (1 - annual_lapse_rate(model, time)) ^ (1/12)
