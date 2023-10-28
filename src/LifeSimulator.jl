@@ -7,6 +7,21 @@ using CSV
 using DataFrames
 using Random
 using Reexport
+using DocStringExtensions
+
+@template (FUNCTIONS, METHODS, MACROS) =
+    """
+    $(DOCSTRING)
+    $(TYPEDSIGNATURES)
+    """
+
+@template TYPES =
+    """
+    $(DOCSTRING)
+    $(TYPEDEF)
+    $(TYPEDSIGNATURES)
+    $(TYPEDFIELDS)
+    """
 
 data_file(file) = joinpath(@__DIR__, "data", joinpath(split(file, '/')...))
 function read_csv(file)

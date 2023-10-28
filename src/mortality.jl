@@ -24,7 +24,7 @@ abstract type MortalityModel end
     monthly_mortality_rate(model::MortalityModel, time::Month, age::Year)
 
 Compute the monthly mortality rate for the given model.
-Falls back to a renormalization of [`annual_mortality_rate`] over 1/12 year.
+Falls back to a renormalization of [`annual_mortality_rate`](@ref) over 1/12 year.
 """
 function monthly_mortality_rate end
 

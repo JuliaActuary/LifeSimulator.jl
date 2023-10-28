@@ -8,8 +8,6 @@ See also: [`Policy`](@ref), [`TermLifeModel`](@ref), [`UniversalLifeModel`](@ref
 """
 abstract type Model end
 
-# XXX: Clarify conversions from 0-based and 1-based annual "rates" to monthly "rates".
-monthly_rate(annual_rate) = (1 + annual_rate)^(1/12) - 1
 monthly_mortality_rate(model::Model, args...) = monthly_mortality_rate(model.mortality, args...)
 monthly_lapse_rate(model::Model, args...) = monthly_lapse_rate(model.lapse, args...)
 
@@ -41,7 +39,7 @@ Universal life model reimplemented from [lifelib's savings library](https://life
   investment_rates::Vector{Float64} = brownian_motion(10000) # the dimension is the number of possible timesteps
   "One-time cost for new policies."
   acquisition_cost::Float64 = 5000.0
-  "Roughly estimated average for the inflation rate."
+  "Roughly estimated average for the annual inflation rate."
   inflation_rate::Float64 = 0.01
   "Annual maintenance cost per policy."
   annual_maintenance_cost::Float64 = 500.0
@@ -58,7 +56,7 @@ investment_rate(model::LifelibSavings, t::Month) = model.investment_rates[1 + Da
 acquisition_cost(model::LifelibSavings) = model.acquisition_cost
 maintenance_cost(model::LifelibSavings, t::Month) = model.annual_maintenance_cost / 12 * (1 + model.inflation_rate)^(Dates.value(t)/12)
 
-discount_rate(model::LifelibSavings, time::Month) = (1 + monthly_rate(model.annual_discount_rate))^(-Dates.value(time))
+discount_rate(model::LifelibSavings, time::Month) = ((1 + model.annual_discount_rate)^(1/12))^(-Dates.value(time))
 
 """
 Term life model.
