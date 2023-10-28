@@ -1,0 +1,67 @@
+\documentclass{article}
+
+% Language setting
+% Replace `english' with e.g. `spanish' to change the document language
+\usepackage[english]{babel}
+
+% Set page size and margins
+% Replace `letterpaper' with `a4paper' for UK/EU standard size
+\usepackage[letterpaper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+
+% Useful packages
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{graphicx}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage{mathtools}
+
+\title{An iterative data simulator for actuarial science}
+\author{Cédric Belmant, Matthew Caseres}
+
+\begin{document}
+\maketitle
+
+\section*{Summary}
+
+\section*{Statement of need}
+
+Actuarial science, concerned with the estimation and management of risk in various fields such as insurance, finance and investment, uses various mathematical techniques based on empirical and theoretical models. Although the practice of the discipline has largely spread from its modern roots since the 17th century, technical resources on the matter are largely hidden behind proprietary models and closed-source implementations. In particular, the lack of production-grade open-source software makes the field hardly accessible at a technical level. In an educational context around actuarial science, we distinguish between two main resources that are paramount for learning:
+
+\begin{itemize}
+    \item Simulators, evolving processes of interest forward in time and producing realistic data sets, used to validate, fine-tune and quantify actuarial models;
+    \item Actuarial models, which focus on methods for estimating and managing the risk contained in specific products or dynamics based on the evolution processes being simulated.
+\end{itemize}
+
+As a quick example, we can take the domain of \hyperlink{https://en.wikipedia.org/wiki/Life_insurance}{life insurance}, a classic setting for actuarial subjects. Although data and models of various complexity exist for various accuracy requirements, they generally all involve the same basic information. First, the risk being contingent on the mortality of individuals, simulators propagate death events in time, which are then used to model financial consequences under the form of claims made by customers. Many life insurance contracts being maintained under the condition of regular payments to be made by a customer, the dynamics of lapses - failures to make a payment by a due date - are also simulated. Then, with this information available, models are defined which provide product-dependent and study-dependent parameters. Usually, the point of view adopted is that of the company issuing insurance contracts. Such parameters generally include mortality rates (e.g. \hyperlink{https://mort.soa.org/}{provided} by the \hyperlink{https://www.soa.org/}{Society of Actuaries}, or SoA), lapse rates, possible increases in product prices for the customer, and costs for creating and maintaining insurance contracts, along with a way to estimate the current value of the used currency at a future date (calculating a \hyperlink{https://en.wikipedia.org/wiki/Present_value}{present value}). Finally, cash flows are computed using both the model and the simulator, which may then be used to prove conformance to certain regulations, or make decisions on strategies to adopt for a given product, usually balancing risk, attractiveness and/or profit.
+
+The application of a given model with an adequate simulation is generally viewed as an implementation detail  that lives outside of the realm of actuarial practice. Low-level details are hidden in vendor implementations such as the \hyperlink{https://www.fisglobal.com/en/products/fis-insurance-risk-suite}{FIS Insurance Risk Suite}, exposing high-level aspects only to practitioners. We believe that on the contrary, implementation details are important and even crucial to understand both the conclusions made with actuarial models and the limitations of such models.
+
+We propose here an iterative implementation of an actuarial modeling software which currently simulates two categories of life insurance products, term life and universal life models, written in the Julia programming language \cite{Julia} and inspired by \hyperlink{https://github.com/lifelib-dev/lifelib}{lifelib}. In addition to providing a way to compute cash flows and other quantities relevant in the application of actuarial modeling, we aimed for an implementation that favors simplicity and ease of use, all the while remaining competitive in terms of performance.
+
+\section*{Overview}
+
+Our \hyperlink{https://github.com/JuliaActuary/LifeSimulator.jl}{LifeSimulator.jl} package is briefly presented with a small demonstration, showcasing its simplicity and ease of use. Then, it is compared against memoization-based approaches, which are common architectures for the implementation of actuarial modeling software.
+
+Finally, we discuss implementation details and present differences with spreadsheet-like data-oriented approaches, comparing performance and complexity metrics between iterative and memoization-based implementation strategies.
+
+\subsection*{An iterative implementation}
+
+Show a basic end-to-end examples for computing a cashflow.
+
+Present difference with memoization-based model: iterative gives access to events and parametrized models, memoization-based are more like direct formulas.
+
+\subsection*{Performance}
+
+The following benchmarks were obtained on a Manjaro Linux system using an i7-12700H Intel processor, single-threaded.
+
+\begin{itemize}
+    \item Term life model only (unless we make a memoization-based universal life implementation in Julia).
+    \item Time complexity. Memoization should theoretically be more expensive due to repeated lookups and hashing, compared to iterating (reading) and storing (writing) in iterative designs. In practice iterative implementations may be slower depending on how they were designed.
+    \item Memory complexity. Iterative is O(P), memoized is O(P*T) without cache eviction, at least O(p) with cache eviction (e.g. using LRU caches). Managing the size of the caches is tricky, it can be detrimental to performance if too aggressive.
+    \item Benchmarks showcasing time complexity and comparing which is slower.
+\end{itemize}
+
+\bibliographystyle{alpha}
+\bibliography{references}
+
+\end{document}
