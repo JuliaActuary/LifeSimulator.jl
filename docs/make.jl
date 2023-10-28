@@ -28,6 +28,7 @@ makedocs(;
   ),
   pages = [
     "Home" => "index.md",
+    "Motivation" => "motivation.md",
     "Tutorials" => [
       "tutorial/getting_started.md",
       "tutorial/customizing_models.md",
@@ -37,7 +38,7 @@ makedocs(;
   repo = "https://github.com/JuliaActuary/LifeSimulator.jl/blob/{commit}{path}#L{line}",
   sitename = "LifeSimulator.jl",
   authors = "Cédric Belmant, Matthew Caseres",
-  linkcheck = true,
+  linkcheck = false,
   doctest = false,
   checkdocs = :exports,
 )

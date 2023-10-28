@@ -1,4 +1,4 @@
-# LifeSimultor.jl
+# LifeSimulator.jl
 
 LifeSimulator is a package for simulating insurance products forward in time. It currently contains two classes of models: [`TermLifeModel`](@ref) and [`UniversalLifeModel`](@ref).
 
